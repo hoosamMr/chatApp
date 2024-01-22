@@ -37,6 +37,7 @@ linux/
 macos/
 windows/
 web/
+lib/firebase_options.dart
 # Symbolication related
 app.*.symbols
 
