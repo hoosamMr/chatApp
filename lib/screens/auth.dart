@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+final _firebase = FirebaseAuth.instance;
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -8,7 +11,7 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreen extends State<AuthScreen> {
   final _form = GlobalKey<FormState>();
-  bool  _myValidator(String value) {
+  bool _myValidator(String value) {
     //if (value == null) return false;
     if (value.trim().isEmpty) return false;
     if (!value.contains('@')) return false;
@@ -19,13 +22,35 @@ class _AuthScreen extends State<AuthScreen> {
   var _enterdEmail = '';
   var _enterdPassword = '';
 
-  void _submit(){
-   bool isValid = _form.currentState!.validate();
-   if(isValid){
+  void _submit() async {
+    bool isValid = _form.currentState!.validate();
+    if (!isValid) return;
     _form.currentState!.save();
-    print('$_enterdEmail $_enterdPassword');
-   }
+    try {
+      if (_isLogin) {
+        final userCredentials = await _firebase.signInWithEmailAndPassword(
+            email: _enterdEmail, password: _enterdPassword);
+            print(userCredentials);
+      } else {
+        final userCredentials = await _firebase.createUserWithEmailAndPassword(
+          email: _enterdEmail,
+          password: _enterdPassword,
+        );
+            print(userCredentials);
+      }
+    } on FirebaseAuthException catch (error) {
+      if (error.code == 'email-already-in-use') {
+        //............
+      }
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.message ?? 'Authentication failed.'),
+        ),
+      );
+    }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,7 +96,7 @@ class _AuthScreen extends State<AuthScreen> {
                                 return null; // Return null for a valid input
                               }
                             },
-                            onSaved: (value){
+                            onSaved: (value) {
                               _enterdEmail = value!;
                             },
                           ),
@@ -81,13 +106,12 @@ class _AuthScreen extends State<AuthScreen> {
                             ),
                             obscureText: true,
                             validator: (value) {
-                              if (value == null ||
-                                  value.trim().length < 6) {
+                              if (value == null || value.trim().length < 6) {
                                 return 'the password must be 6 chars long at least';
                               }
                               return null;
                             },
-                            onSaved: (value){
+                            onSaved: (value) {
                               _enterdPassword = value!;
                             },
                             //keyboardType: TextInputType.visiblePassword
