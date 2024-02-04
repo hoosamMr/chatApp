@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:chat_app/widgets/user_image_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -50,6 +51,14 @@ class _AuthScreen extends State<AuthScreen> {
             .child('${userCredentials.user!.uid}.jpg');
         await storageRef.putFile(selecetedImage!);
         final imageUrl = await storageRef.getDownloadURL();
+       await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredentials.user!.uid).set({
+              'username':'to be done...',
+              'email': _enterdEmail,
+              'image_url':imageUrl,
+
+            });
         //print(imageUrl);
         //print(userCredentials);
       }
@@ -63,7 +72,7 @@ class _AuthScreen extends State<AuthScreen> {
           content: Text(error.message ?? 'Authentication failed.'),
         ),
       );
-       setState(() {
+      setState(() {
         _isAuthenticating = false;
       });
     }
@@ -145,7 +154,7 @@ class _AuthScreen extends State<AuthScreen> {
                           ),
                           if (_isAuthenticating)
                             const CircularProgressIndicator(),
-
+                            
                           if (!_isAuthenticating)
                             ElevatedButton(
                               onPressed: _submit,
