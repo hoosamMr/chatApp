@@ -50,7 +50,7 @@ class _AuthScreen extends State<AuthScreen> {
             .child('${userCredentials.user!.uid}.jpg');
         await storageRef.putFile(selecetedImage!);
         final imageUrl = await storageRef.getDownloadURL();
-        print(imageUrl);
+        //print(imageUrl);
         //print(userCredentials);
       }
     } on FirebaseAuthException catch (error) {
