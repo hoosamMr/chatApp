@@ -23,14 +23,17 @@ class App extends StatelessWidget {
       title: 'FlutterChat',
       theme: ThemeData().copyWith(
         colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color.fromARGB(255, 63, 17, 177)),
+          seedColor: const Color.fromARGB(255, 63, 17, 177),//255, 63, 17, 177
+        ),
       ),
       home: StreamBuilder(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (ctx, snapshot) {
-            if(snapshot.connectionState==ConnectionState.waiting)return const SplashScreen();
-            
-            return snapshot.hasData? const ChatScreen(): const AuthScreen();
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const SplashScreen();
+            }
+
+            return snapshot.hasData ? const ChatScreen() : const AuthScreen();
           }),
     );
   }
